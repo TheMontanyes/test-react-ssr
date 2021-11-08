@@ -7,7 +7,7 @@ import { useCallback, useContext, useEffect } from 'react';
 import { Filters, SortDirectionsTypes } from '../components/Filters';
 import { sortPokemons } from '../helpers/sortPokemons';
 import { AppContext } from '../store/AppContext';
-import { setFilters, setMainList } from '../store/actions';
+import { setFilters, setLoadingList, setMainList } from '../store/actions';
 import { FavoritesList } from '../components/FavoritesList';
 import { MainList } from '../components/MainList';
 
@@ -23,22 +23,28 @@ const Home: NextPage<HomeProps> = ({ pokemons = [] }) => {
 
   const handleSearchPokemons = useCallback(
     (searchValue: string, sortType: SortDirectionsTypes) => {
-      let findedPokemons: Pokemon[];
-      if (searchValue) {
-        findedPokemons = pokemons.filter(
-          (pokemon) =>
-            (pokemon.name.toLowerCase().includes(searchValue) ||
-              pokemon.items?.some((pokemon) => pokemon.name.toLowerCase().includes(searchValue))) &&
-            !favoritesList.map(({ id }) => id).includes(pokemon.id),
-        );
+      dispatch(setLoadingList(true));
+      setTimeout(() => {
+        let findedPokemons: Pokemon[];
+        if (searchValue) {
+          findedPokemons = pokemons.filter(
+            (pokemon) =>
+              (pokemon.name.toLowerCase().includes(searchValue) ||
+                pokemon.items?.some((pokemon) =>
+                  pokemon.name.toLowerCase().includes(searchValue),
+                )) &&
+              !favoritesList.map(({ id }) => id).includes(pokemon.id),
+          );
 
-        findedPokemons = sortPokemons(findedPokemons, searchValue, sortType);
-      } else {
-        findedPokemons = sortPokemons(pokemons, searchValue, sortType);
-      }
+          findedPokemons = sortPokemons(findedPokemons, searchValue, sortType);
+        } else {
+          findedPokemons = sortPokemons(pokemons, searchValue, sortType);
+        }
 
-      dispatch(setMainList(findedPokemons));
-      dispatch(setFilters({ sortType, searchValue }));
+        dispatch(setMainList(findedPokemons));
+        dispatch(setFilters({ sortType, searchValue }));
+        dispatch(setLoadingList(false));
+      }, 0);
     },
     [pokemons, favoritesList],
   );

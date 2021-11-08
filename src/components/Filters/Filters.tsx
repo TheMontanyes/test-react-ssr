@@ -20,6 +20,7 @@ const { searchPlaceholder } = HomeResources;
 const Filters: FC<FiltersProps> = memo(({ onSearch }) => {
   const {
     state: {
+      loadingList,
       mainListFilters: { searchValue, sortType },
     },
   } = useContext(AppContext);
@@ -60,10 +61,11 @@ const Filters: FC<FiltersProps> = memo(({ onSearch }) => {
           placeholder={searchPlaceholder}
           suffix={<SearchOutlined />}
           allowClear
+          disabled={loadingList}
         />
       </Col>
       <Col>
-        <Button onClick={handleSwitchSort}>
+        <Button onClick={handleSwitchSort} disabled={loadingList}>
           {sortDirection === SortDirectionsTypes.ASC ? (
             <SortAscendingOutlined />
           ) : (
